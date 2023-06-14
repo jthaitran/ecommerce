@@ -1,0 +1,45 @@
+package repository
+
+import (
+	"ecommerce/internal/app/domain"
+	"encoding/json"
+	"fmt"
+	"github.com/spf13/viper"
+	"net/http"
+)
+
+type WooProductRepository interface {
+	GetProducts() (*domain.WooCommerceProduct, error)
+}
+
+type InitWooProductRepository struct {
+	Products map[int]domain.WooCommerceProduct
+}
+
+func (r *InitWooProductRepository) GetProducts() ([]domain.WooCommerceProduct, error) {
+	getProducts := viper.GetString("woocommerce.websiteUrl") + "/wp-json/wc/v3/products"
+	consumerKey := viper.GetString("woocommerce.consumer_key")
+	consumerSecret := viper.GetString("woocommerce.consumer_secret")
+	var products []domain.WooCommerceProduct
+	req, err := http.NewRequest("GET", getProducts, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.SetBasicAuth(consumerKey, consumerSecret)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to retrieve products: %s", resp.Status)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&products)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}

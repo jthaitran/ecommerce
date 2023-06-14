@@ -1,0 +1,206 @@
+package service
+
+import (
+	"ecommerce/internal/app/domain"
+	"ecommerce/internal/app/repository"
+)
+
+type WooProductService struct {
+	repo repository.InitWooProductRepository
+}
+
+func NewProductService(repo repository.InitWooProductRepository) *WooProductService {
+	return &WooProductService{repo: repo}
+}
+
+func (s *WooProductService) GetProducts() ([]domain.WooCommerceProduct, error) {
+	return s.repo.GetProducts()
+}
+
+//type WooProductService interface {
+//	GetProducts() ([]domain.WooCommerceProduct, error)
+//}
+
+//func createProduct() error {
+//	shipXanhShopeeRaw, err := mappingRawProduct()
+//	if err != nil {
+//		return err
+//	}
+//
+//	// Assume you have the ShipXanhShopeeRaw data stored in the variable "shipXanhShopeeRaw"
+//
+//	// Convert to Product
+//	products, err := ConvertShipXanhShopeeRawToProduct(shipXanhShopeeRaw)
+//	if err != nil {
+//		fmt.Println("Error converting ShipXanhShopeeRaw to Product:", err)
+//		return err
+//	}
+//	// WooCommerce API endpoint for creating products
+//	apiURL := "https://homikids.vn/wp-json/wc/v3/products"
+//
+//	// WooCommerce API credentials
+//	consumerKey := "ck_09325a8db9766dc4839619576f2ee3dc709a1481"
+//	consumerSecret := "cs_53e85589dd01e882bc5484edc35f713483d4c06e"
+//
+//	// Loop through the products and create them via the WooCommerce API
+//	for _, product := range products {
+//		// Convert product to JSON
+//		jsonData, err := json.Marshal(product)
+//		if err != nil {
+//			fmt.Println("Error marshaling product:", err)
+//			return err
+//		}
+//
+//		// Create a new HTTP POST request
+//		req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonData))
+//		if err != nil {
+//			fmt.Println("Error creating request:", err)
+//			return err
+//		}
+//
+//		// Set WooCommerce API credentials
+//		req.SetBasicAuth(consumerKey, consumerSecret)
+//
+//		// Set request headers
+//		req.Header.Set("Content-Type", "application/json")
+//
+//		// Send the request
+//		client := &http.Client{}
+//		resp, err := client.Do(req)
+//		if err != nil {
+//			fmt.Println("Error sending request:", err)
+//			return err
+//		}
+//		defer resp.Body.Close()
+//
+//		// Read the response body
+//		var productResp ProductResponse
+//		err = json.NewDecoder(resp.Body).Decode(&productResp)
+//		if err != nil {
+//			log.Fatalf("Error decoding response body: %v", err)
+//		}
+//
+//		// Check the response status code
+//		if resp.StatusCode == http.StatusCreated {
+//			fmt.Printf("Product created successfully. ID: %s\n", productResp.Message)
+//		} else {
+//			log.Fatalf("Error creating product. Status Code: %s", productResp.Code)
+//		}
+//	}
+//
+//	return nil
+//}
+//
+//func UnmarshalWelcome(data []byte) (ProductResponse, error) {
+//	var r ProductResponse
+//	err := json.Unmarshal(data, &r)
+//	return r, err
+//}
+//
+//func (r *ProductResponse) Marshal() ([]byte, error) {
+//	return json.Marshal(r)
+//}
+
+type ProductResponse struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	Data    Data   `json:"data"`
+}
+
+type Data struct {
+	Status int64 `json:"status"`
+}
+
+//func mappingRawProduct() (ShipXanhShopeeRaw, error) {
+//	//read data from example
+//	file, err := os.Open("example.json")
+//	if err != nil {
+//		fmt.Println("Error opening file:", err)
+//		return ShipXanhShopeeRaw{}, err
+//	}
+//
+//	defer file.Close()
+//
+//	//Create a decoder
+//	decoder := json.NewDecoder(file)
+//	//Map json data to struct
+//	var rawProduct ShipXanhShopeeRaw
+//	err = decoder.Decode(&rawProduct)
+//	if err != nil {
+//		fmt.Println("Error decoding JSON:", err)
+//		return ShipXanhShopeeRaw{}, err
+//	}
+//
+//	return rawProduct, err
+//}
+//
+//	func DownloadImages() error {
+//		shipXanhShopeeRaw, err := mappingRawProduct()
+//		if err != nil {
+//			return err
+//		}
+//
+//		// Convert to Product
+//		products, err := ConvertShipXanhShopeeRawToProduct(shipXanhShopeeRaw)
+//		if err != nil {
+//			fmt.Println("Error converting ShipXanhShopeeRaw to Product:", err)
+//			return err
+//		}
+//
+//		for _, product := range products {
+//			for _, imgURL := range product.Images {
+//				fileName, errrr := getFileNameFromURL(imgURL.Src)
+//				if errrr != nil {
+//					fmt.Printf("Error getting file name: %v\n", errrr)
+//					return errrr
+//				}
+//				// Remove the .png extension from the file path
+//				fileName = removeExtension(fileName, ".png")
+//				outputPath := fmt.Sprintf("%s/%s.jpeg", "/Users/thaitran/MeWork/ecomerce/product_images", fileName)
+//				err = downloadImage(imgURL.Src, outputPath)
+//				if err != nil {
+//					fmt.Printf("Error downloading image: %v\n", err)
+//				}
+//			}
+//		}
+//		fmt.Println("Download done")
+//		return err
+//	}
+//func getFileNameFromURL(urlStr string) (string, error) {
+//	parsedURL, err := url.Parse(urlStr)
+//	if err != nil {
+//		return "", err
+//	}
+//
+//	fileName := filepath.Base(parsedURL.Path)
+//	return fileName, nil
+//}
+//func downloadImage(url, filePath string) error {
+//
+//	// Send a GET request to the image URL
+//	resp, err := http.Get(url)
+//	if err != nil {
+//		return fmt.Errorf("failed to download image: %v", err)
+//	}
+//	defer resp.Body.Close()
+//
+//	// Create the output file
+//	file, err := os.Create(filePath)
+//	if err != nil {
+//		return fmt.Errorf("failed to create output file: %v", err)
+//	}
+//	defer file.Close()
+//
+//	// Copy the image data to the output file
+//	_, err = io.Copy(file, resp.Body)
+//	if err != nil {
+//		return fmt.Errorf("failed to save image data: %v", err)
+//	}
+//
+//	fmt.Printf("Downloaded image: %s\n", filePath)
+//	return err
+//}
+//
+//func removeExtension(fileName, ext string) string {
+//	return strings.TrimSuffix(fileName, ext)
+//}
